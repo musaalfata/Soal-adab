@@ -1,0 +1,2043 @@
+<!DOCTYPE html>
+<html lang="id" class="h-full">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kuis & Rapor Digital - Pendidikan Akhlak & Hadits Kelas VI SU</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Google Fonts: Poppins & Tajawal -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Tajawal:wght@400;700;900&display=swap" rel="stylesheet">
+  
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Poppins', 'sans-serif'],
+            arabic: ['Tajawal', 'serif'],
+          },
+          colors: {
+            emeraldPrimary: '#0d9488',
+            emeraldDark: '#065f46',
+            amberGold: '#f59e0b',
+            navyDark: '#0f172a',
+            navyCard: '#1e293b'
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Custom Keyframes & Utilities */
+    @keyframes pulseCorrect {
+      0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+      70% { transform: scale(1.03); box-shadow: 0 0 0 15px rgba(16, 185, 129, 0); }
+      100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+    }
+
+    @keyframes shakeWrong {
+      0%, 100% { transform: translateX(0); }
+      20%, 60% { transform: translateX(-10px); }
+      40%, 80% { transform: translateX(10px); }
+    }
+
+    .animate-correct {
+      animation: pulseCorrect 0.6s ease-in-out;
+    }
+
+    .animate-shake {
+      animation: shakeWrong 0.5s ease-in-out;
+    }
+
+    .glass-card {
+      background: rgba(30, 41, 59, 0.85);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    /* Print Styles for Digital Rapor */
+    @media print {
+      body {
+        background: #ffffff !important;
+        color: #000000 !important;
+      }
+      .no-print {
+        display: none !important;
+      }
+      .print-only {
+        display: block !important;
+      }
+      .glass-card {
+        background: #ffffff !important;
+        border: 2px solid #0d9488 !important;
+        box-shadow: none !important;
+        color: #000 !important;
+      }
+      #raporView {
+        display: block !important;
+      }
+    }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 font-sans min-h-screen flex flex-col justify-between selection:bg-teal-500 selection:text-white">
+
+  <!-- Top Navigation Bar -->
+  <header class="no-print bg-slate-900/90 border-b border-teal-500/30 sticky top-0 z-40 backdrop-blur-md">
+    <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+      
+      <!-- Logo & Title -->
+      <div class="flex items-center space-x-3 cursor-pointer" onclick="showView('homeView')">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-teal-600 to-amber-500 flex items-center justify-center shadow-lg shadow-teal-500/20 text-white font-bold text-xl">
+          <i class="fa-solid fa-book-quran"></i>
+        </div>
+        <div>
+          <h1 class="font-extrabold text-sm md:text-base leading-tight bg-gradient-to-r from-teal-400 via-emerald-300 to-amber-300 bg-clip-text text-transparent">
+            MA'HAD KHIDMATUSSUNNAH
+          </h1>
+          <p class="text-xs text-slate-400">Pendidikan Akhlak & Hadits Kelas VI SU</p>
+        </div>
+      </div>
+
+      <!-- User Bar & Audio Controls -->
+      <div class="flex items-center space-x-3">
+        <!-- Audio Toggle Button -->
+        <button id="audioToggleBtn" onclick="toggleAudio()" class="p-2.5 rounded-xl bg-slate-800 border border-slate-700 hover:border-teal-400 text-teal-400 transition flex items-center justify-center" title="Toggle Suara">
+          <i id="audioIcon" class="fa-solid fa-volume-high text-lg"></i>
+        </button>
+
+        <!-- Current Player Chip -->
+        <div id="playerChip" class="hidden sm:flex items-center space-x-2 bg-slate-800 border border-teal-500/30 px-3 py-1.5 rounded-xl">
+          <span id="chipAvatar" class="text-xl">👳‍♂️</span>
+          <span id="chipName" class="font-semibold text-xs text-teal-300 max-w-[100px] truncate">Siswa</span>
+        </div>
+
+        <!-- Navigation Buttons -->
+        <button onclick="showView('homeView')" class="px-3 py-2 text-xs md:text-sm font-semibold rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition">
+          <i class="fa-solid fa-house md:mr-1"></i> <span class="hidden md:inline">Beranda</span>
+        </button>
+        <button onclick="showView('raporView')" class="px-3 py-2 text-xs md:text-sm font-semibold rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 hover:from-amber-400 hover:to-amber-500 transition shadow-md shadow-amber-500/20">
+          <i class="fa-solid fa-award md:mr-1"></i> <span>Rapor</span>
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- Canvas Overlay for Victory Particle Visual FX -->
+  <canvas id="confettiCanvas" class="fixed inset-0 pointer-events-none z-50"></canvas>
+
+  <!-- Main Container -->
+  <main class="max-w-5xl mx-auto px-4 py-6 flex-grow w-full">
+
+    <!-- VIEW 1: HOME & AVATAR SELECTION & LEVEL SELECT -->
+    <section id="homeView" class="space-y-8 animate-fadeIn">
+      
+      <!-- Hero Banner -->
+      <div class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-teal-900/80 via-slate-900 to-slate-900 border border-teal-500/30 p-6 md:p-8 shadow-2xl">
+        <div class="absolute -right-10 -bottom-10 opacity-10 text-teal-400 text-9xl pointer-events-none font-serif">
+          ﷺ
+        </div>
+        <div class="relative z-10 max-w-2xl">
+          <span class="inline-block px-3 py-1 bg-teal-500/20 border border-teal-400/40 rounded-full text-teal-300 text-xs font-semibold uppercase tracking-wider mb-3">
+            <i class="fa-solid fa-star text-amber-400 mr-1"></i> Semester Ganjil T.A 2026/2027
+          </span>
+          <h2 class="text-2xl md:text-4xl font-extrabold text-white mb-2 leading-tight">
+            Kuis & Rapor Digital <br/><span class="text-teal-400">STS Pendidikan Akhlak & Hadits</span>
+          </h2>
+          <p class="text-slate-300 text-sm md:text-base mb-6">
+            Uji pemahamanmu terhadap 4 Hadits Utama (Iman, Manisnya Iman, Meninggalkan Shalat, Keutamaan Dzikir) & Evaluasi Akhir dengan 100 Bank Soal lengkap!
+          </p>
+
+          <!-- Input Player Profile -->
+          <div class="bg-slate-900/90 p-4 md:p-5 rounded-2xl border border-teal-500/40 shadow-inner max-w-lg">
+            <label class="block text-xs font-semibold text-teal-300 mb-2 uppercase tracking-wide">
+              Pilih Avatar & Masukkan Nama Siswa
+            </label>
+            
+            <!-- Avatar Selection Grid -->
+            <div class="flex items-center space-x-2 overflow-x-auto pb-3 mb-3 scrollbar-none" id="avatarSelector">
+              <!-- Rendered dynamically in JS -->
+            </div>
+
+            <!-- Name Input Field -->
+            <div class="flex gap-2">
+              <input type="text" id="playerNameInput" placeholder="Ketik nama lengkapmu di sini..." class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-teal-400 transition" />
+              <button onclick="saveProfile()" class="px-5 py-2.5 bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold rounded-xl text-sm transition shadow-lg shadow-teal-500/20 whitespace-nowrap">
+                <i class="fa-solid fa-floppy-disk mr-1"></i> Simpan
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Level Selector Grid -->
+      <div>
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-xl font-bold text-white flex items-center">
+            <i class="fa-solid fa-layer-group text-teal-400 mr-2"></i> Pilih Level Pembelajaran
+          </h3>
+          <span class="text-xs text-slate-400">Total 100 Soal Pilihan Ganda</span>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5" id="levelGrid">
+          <!-- Level Cards rendered dynamically JS -->
+        </div>
+      </div>
+
+    </section>
+
+    <!-- VIEW 2: QUIZ INTERFACE -->
+    <section id="quizView" class="hidden space-y-6">
+      
+      <!-- Quiz Header Controls -->
+      <div class="glass-card rounded-2xl p-4 flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <div class="text-xs text-teal-400 font-bold uppercase tracking-wider" id="quizLevelBadge">Level 1</div>
+          <h3 class="text-lg font-bold text-white" id="quizLevelTitle">Hadits 1 - Iman dan Istiqamah</h3>
+        </div>
+
+        <div class="flex items-center space-x-4">
+          <!-- Combo Streak Indicator -->
+          <div class="bg-slate-800/80 px-3 py-1.5 rounded-xl border border-amber-500/30 flex items-center space-x-1.5 text-amber-400">
+            <i class="fa-solid fa-fire text-amber-400 animate-pulse"></i>
+            <span class="text-xs font-semibold">Streak: <strong id="comboCount" class="text-sm text-white">0</strong></span>
+          </div>
+
+          <!-- Current Score -->
+          <div class="bg-slate-800/80 px-3 py-1.5 rounded-xl border border-teal-500/30 text-teal-300">
+            <span class="text-xs font-semibold">Skor: <strong id="currentScore" class="text-sm text-white">0</strong></span>
+          </div>
+
+          <!-- Leave Quiz Button -->
+          <button onclick="confirmExitQuiz()" class="text-slate-400 hover:text-rose-400 text-sm px-2 py-1 transition">
+            <i class="fa-solid fa-xmark text-lg"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Progress & Timer Bar -->
+      <div class="space-y-1.5">
+        <div class="flex justify-between text-xs font-medium text-slate-400">
+          <span>Soal <strong id="questionNumber" class="text-teal-300">1</strong> dari <span id="totalQuestionsInLevel">20</span></span>
+          <span>Waktu: <strong id="timerDisplay" class="text-amber-400">30s</strong></span>
+        </div>
+        <div class="w-full h-3 bg-slate-800 rounded-full overflow-hidden p-0.5 border border-slate-700">
+          <div id="progressBar" class="h-full bg-gradient-to-r from-teal-500 to-emerald-400 rounded-full transition-all duration-300" style="width: 5%;"></div>
+        </div>
+      </div>
+
+      <!-- Question Card Frame -->
+      <div id="questionCard" class="glass-card rounded-3xl p-6 md:p-8 shadow-2xl space-y-6 transition-all duration-300 border border-slate-700/60">
+        
+        <!-- Arabic Hadits Callout (If exists) -->
+        <div id="arabicBox" class="hidden p-4 rounded-2xl bg-teal-950/40 border border-teal-500/30 text-center">
+          <p id="arabicText" class="font-arabic text-xl md:text-2xl text-amber-300 font-bold leading-relaxed dir-rtl"></p>
+        </div>
+
+        <!-- Question Prompt Text -->
+        <h4 id="questionText" class="text-base md:text-xl font-bold text-slate-100 leading-snug">
+          Memuat pertanyaan...
+        </h4>
+
+        <!-- Options Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4" id="optionsContainer">
+          <!-- Options dynamically generated JS -->
+        </div>
+
+        <!-- Explanation / Faedah Note Card (Appears after answer) -->
+        <div id="explanationBox" class="hidden p-4 rounded-2xl bg-slate-900 border border-teal-500/30 space-y-2 animate-fadeIn">
+          <div class="flex items-center text-xs font-bold text-teal-400 uppercase tracking-wider">
+            <i class="fa-solid fa-circle-info mr-1.5"></i> Faedah & Penjelasan:
+          </div>
+          <p id="explanationText" class="text-xs md:text-sm text-slate-300 leading-relaxed"></p>
+        </div>
+
+        <!-- Next Question Action Button -->
+        <div class="flex justify-end pt-2">
+          <button id="nextBtn" onclick="nextQuestion()" disabled class="px-6 py-3 bg-slate-700 text-slate-400 cursor-not-allowed font-bold rounded-xl text-sm transition flex items-center space-x-2">
+            <span>Soal Berikutnya</span>
+            <i class="fa-solid fa-arrow-right"></i>
+          </button>
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- VIEW 3: LEVEL COMPLETED SUMMARY -->
+    <section id="levelResultView" class="hidden space-y-6 text-center animate-fadeIn">
+      <div class="glass-card rounded-3xl p-8 max-w-xl mx-auto space-y-6 shadow-2xl border border-teal-500/40">
+        
+        <div class="w-20 h-20 mx-auto rounded-full bg-gradient-to-tr from-amber-400 to-amber-600 flex items-center justify-center text-slate-950 text-4xl shadow-lg shadow-amber-500/30">
+          <i class="fa-solid fa-trophy"></i>
+        </div>
+
+        <div>
+          <h3 class="text-2xl font-extrabold text-white">Level Selesai!</h3>
+          <p class="text-xs text-slate-400 mt-1" id="resultLevelTitle">Hadits 1 - Iman dan Istiqamah</p>
+        </div>
+
+        <!-- Star Rating Display -->
+        <div class="flex justify-center space-x-2 text-3xl" id="starRating">
+          <i class="fa-solid fa-star text-amber-400"></i>
+          <i class="fa-solid fa-star text-amber-400"></i>
+          <i class="fa-solid fa-star text-amber-400"></i>
+        </div>
+
+        <!-- Stats Breakdown Card -->
+        <div class="grid grid-cols-3 gap-3 bg-slate-900/80 p-4 rounded-2xl border border-slate-800">
+          <div>
+            <div class="text-xs text-slate-400">Nilai Final</div>
+            <div id="resScore" class="text-xl font-black text-teal-400">0</div>
+          </div>
+          <div>
+            <div class="text-xs text-slate-400">Benar / Total</div>
+            <div id="resAccuracy" class="text-xl font-black text-amber-400">0/20</div>
+          </div>
+          <div>
+            <div class="text-xs text-slate-400">Akurasi</div>
+            <div id="resPercent" class="text-xl font-black text-emerald-400">0%</div>
+          </div>
+        </div>
+
+        <!-- Feedback Note -->
+        <p id="resFeedback" class="text-xs md:text-sm text-slate-300 italic">
+          MasyaAllah! Hasil yang luar biasa. Pertahankan semangat menuntut ilmumu!
+        </p>
+
+        <!-- Action Buttons -->
+        <div class="flex flex-col sm:flex-row gap-3 justify-center pt-2">
+          <button onclick="retryCurrentLevel()" class="px-5 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-bold text-sm transition">
+            <i class="fa-solid fa-rotate-right mr-1.5"></i> Coba Lagi
+          </button>
+          <button onclick="showView('homeView')" class="px-5 py-3 rounded-xl bg-teal-600 hover:bg-teal-500 text-white font-bold text-sm transition shadow-lg shadow-teal-600/30">
+            <i class="fa-solid fa-list-check mr-1.5"></i> Pilih Level Lain
+          </button>
+          <button onclick="showView('raporView')" class="px-5 py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-sm transition shadow-lg shadow-amber-500/20">
+            <i class="fa-solid fa-award mr-1.5"></i> Lihat Rapor
+          </button>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- VIEW 4: RAPOR DIGITAL & PRESTASI -->
+    <section id="raporView" class="hidden space-y-8 animate-fadeIn">
+      
+      <!-- Printable Rapor Certificate -->
+      <div class="glass-card rounded-3xl p-6 md:p-10 shadow-2xl border-2 border-teal-500/40 relative overflow-hidden bg-slate-900">
+        
+        <!-- Background Decorative Watermark -->
+        <div class="absolute -right-20 -bottom-20 opacity-5 text-slate-100 text-9xl pointer-events-none font-serif">
+          Ma'had Khidmatussunnah
+        </div>
+
+        <!-- Rapor Header -->
+        <div class="border-b border-teal-500/30 pb-6 mb-6 flex flex-col sm:flex-row justify-between items-center gap-4 text-center sm:text-left">
+          <div class="flex items-center space-x-4">
+            <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-teal-600 to-amber-500 flex items-center justify-center text-white text-3xl font-bold shadow-lg">
+              <i class="fa-solid fa-graduation-cap"></i>
+            </div>
+            <div>
+              <h2 class="text-xl md:text-2xl font-black text-white uppercase tracking-wide">
+                RAPOR DIGITAL STS PENDIDIKAN AKHLAK & HADITS
+              </h2>
+              <p class="text-xs md:text-sm text-teal-300">MA'HAD KHIDMATUSSUNNAH SALAFIYAH ULA - KELAS VI SU</p>
+              <p class="text-xs text-slate-400">Tahun Ajaran 2026/2027 • Semester Ganjil</p>
+            </div>
+          </div>
+
+          <!-- Print / Action Controls -->
+          <div class="no-print flex gap-2">
+            <button onclick="window.print()" class="px-4 py-2 bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold rounded-xl text-xs transition shadow-lg shadow-teal-500/20">
+              <i class="fa-solid fa-print mr-1"></i> Cetak / Simpan PDF
+            </button>
+            <button onclick="confirmResetProgress()" class="px-3 py-2 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 font-semibold rounded-xl text-xs border border-rose-500/40 transition">
+              <i class="fa-solid fa-trash-can"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Student Profile Box -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 bg-slate-950/80 p-5 rounded-2xl border border-slate-800 mb-8">
+          <div class="flex items-center space-x-3">
+            <span id="raporAvatar" class="text-4xl">👳‍♂️</span>
+            <div>
+              <div class="text-xs text-slate-400">Nama Siswa / Santri</div>
+              <div id="raporName" class="font-bold text-white text-base">Siswa Akhlak</div>
+            </div>
+          </div>
+          <div>
+            <div class="text-xs text-slate-400">Predikat Keseluruhan</div>
+            <div class="flex items-center space-x-2">
+              <span id="raporGrade" class="text-2xl font-black text-amber-400">A+</span>
+              <span id="raporGradeTitle" class="text-xs text-slate-300 font-semibold">(Mumtaz / Sangat Baik)</span>
+            </div>
+          </div>
+          <div>
+            <div class="text-xs text-slate-400">Total Skor Akhir</div>
+            <div id="raporTotalScore" class="text-2xl font-black text-teal-400">0 / 1000</div>
+          </div>
+        </div>
+
+        <!-- Detailed Level Matrix Table -->
+        <div class="space-y-3 mb-8">
+          <h3 class="text-base font-bold text-white flex items-center">
+            <i class="fa-solid fa-list-check text-teal-400 mr-2"></i> Rincian Nilai Per Level Materi
+          </h3>
+
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs md:text-sm text-slate-300">
+              <thead class="bg-slate-950 text-teal-300 font-bold border-b border-slate-800 uppercase tracking-wider">
+                <tr>
+                  <th class="p-3">Level / Hadits</th>
+                  <th class="p-3">Perawi Hadits</th>
+                  <th class="p-3 text-center">Skor</th>
+                  <th class="p-3 text-center">Akurasi</th>
+                  <th class="p-3 text-center">Status</th>
+                </tr>
+              </thead>
+              <tbody id="raporTableBody" class="divide-y divide-slate-800">
+                <!-- Rows rendered JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Badges & Achievements Section -->
+        <div class="space-y-4">
+          <h3 class="text-base font-bold text-white flex items-center">
+            <i class="fa-solid fa-medal text-amber-400 mr-2"></i> Lencana Prestasi & Gelar Unlocked
+          </h3>
+
+          <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3" id="badgesGrid">
+            <!-- Badges rendered JS -->
+          </div>
+        </div>
+
+        <!-- Signature Footer (for Print Output) -->
+        <div class="pt-8 border-t border-slate-800 mt-8 flex justify-between items-end text-xs text-slate-400 print-only">
+          <div>
+            <p>Mengetahui,</p>
+            <p class="font-bold text-slate-200 mt-12">Ustadz / Pengajar Akhlak & Hadits</p>
+          </div>
+          <div class="text-right">
+            <p>Ma'had Khidmatussunnah, 2026</p>
+            <p class="font-bold text-slate-200 mt-12">Orang Tua / Wali Santri</p>
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="no-print bg-slate-900 border-t border-slate-800 py-4 mt-8">
+    <div class="max-w-6xl mx-auto px-4 text-center text-xs text-slate-400 space-y-1">
+      <p>© 2026/2027 Ma'had Khidmatussunnah Salafiyah Ula. Seluruh Hak Cipta Dilindungi.</p>
+      <p class="text-slate-500">"Sebaik-baik kalian adalah yang paling baik akhlaknya." (HR. Bukhari)</p>
+    </div>
+  </footer>
+
+  <!-- Notification Toast Container -->
+  <div id="toast" class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 glass-card border border-teal-400 text-white px-5 py-3 rounded-2xl shadow-2xl flex items-center space-x-3 pointer-events-none">
+    <span id="toastIcon" class="text-xl">✨</span>
+    <span id="toastMsg" class="text-xs md:text-sm font-semibold">Pesan Notifikasi</span>
+  </div>
+
+  <!-- JavaScript Code Engine -->
+  <script>
+    // Web Audio API Synthesizer (No external sound files required)
+    class SoundEngine {
+      constructor() {
+        this.ctx = null;
+        this.muted = false;
+      }
+
+      init() {
+        if (!this.ctx) {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          this.ctx = new AudioContext();
+        }
+      }
+
+      playClick() {
+        if (this.muted) return;
+        this.init();
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(600, this.ctx.currentTime);
+        gain.gain.setValueAtTime(0.05, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.08);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.08);
+      }
+
+      playCorrect() {
+        if (this.muted) return;
+        this.init();
+        const now = this.ctx.currentTime;
+        const notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
+        notes.forEach((freq, idx) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(freq, now + idx * 0.08);
+          gain.gain.setValueAtTime(0.1, now + idx * 0.08);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.08 + 0.2);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now + idx * 0.08);
+          osc.stop(now + idx * 0.08 + 0.2);
+        });
+      }
+
+      playWrong() {
+        if (this.muted) return;
+        this.init();
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(180, now);
+        osc.frequency.linearRampToValueAtTime(110, now + 0.3);
+        gain.gain.setValueAtTime(0.12, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.3);
+      }
+
+      playFanfare() {
+        if (this.muted) return;
+        this.init();
+        const now = this.ctx.currentTime;
+        const notes = [261.63, 329.63, 392.00, 523.25, 659.25, 783.99];
+        notes.forEach((freq, idx) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(freq, now + idx * 0.12);
+          gain.gain.setValueAtTime(0.15, now + idx * 0.12);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.12 + 0.4);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now + idx * 0.12);
+          osc.stop(now + idx * 0.12 + 0.4);
+        });
+      }
+    }
+
+    const sound = new SoundEngine();
+
+    function toggleAudio() {
+      sound.muted = !sound.muted;
+      const icon = document.getElementById('audioIcon');
+      if (sound.muted) {
+        icon.className = 'fa-solid fa-volume-xmark text-rose-400';
+        showToast('🔇 Audio Dimatikan', 'info');
+      } else {
+        icon.className = 'fa-solid fa-volume-high text-teal-400';
+        sound.playClick();
+        showToast('🔊 Audio Diaktifkan', 'info');
+      }
+    }
+
+    // Particle & Canvas Confetti Engine
+    const canvas = document.getElementById('confettiCanvas');
+    const ctx = canvas.getContext('2d');
+    let particles = [];
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    function triggerConfetti() {
+      particles = [];
+      const colors = ['#0d9488', '#f59e0b', '#10b981', '#3b82f6', '#ec4899'];
+      for (let i = 0; i < 120; i++) {
+        particles.push({
+          x: canvas.width / 2,
+          y: canvas.height / 2,
+          vx: (Math.random() - 0.5) * 16,
+          vy: (Math.random() - 0.7) * 16,
+          size: Math.random() * 8 + 4,
+          color: colors[Math.floor(Math.random() * colors.length)],
+          alpha: 1,
+          decay: Math.random() * 0.015 + 0.008
+        });
+      }
+      animateConfetti();
+    }
+
+    function animateConfetti() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      let alive = false;
+      particles.forEach(p => {
+        if (p.alpha > 0) {
+          alive = true;
+          p.x += p.vx;
+          p.y += p.vy;
+          p.vy += 0.3; // Gravity
+          p.alpha -= p.decay;
+          ctx.globalAlpha = Math.max(0, p.alpha);
+          ctx.fillStyle = p.color;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      });
+      if (alive) {
+        requestAnimationFrame(animateConfetti);
+      } else {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+      }
+    }
+
+    // 100 QUESTION BANK DATABASE (20 Questions per level x 5 Levels)
+    const avatars = ['👳‍♂️', '🧕', '🎓', '📖', '🌟', '🦁', '🦅', '🏆'];
+
+    const quizLevels = [
+      {
+        id: 1,
+        title: "Hadits 1 - Iman dan Istiqamah",
+        subtitle: "Perawi: Sufyan bin Abdillah ats-Tsaqafi",
+        questions: [
+          {
+            q: "Siapakah nama dan nasab perawi Hadits 1 tentang Iman dan Istiqamah?",
+            arabic: "",
+            options: ["Sufyan bin Abdillah ats-Tsaqafi", "Anas bin Malik al-Anshari", "Jabir bin Abdillah al-Khazraji", "Abu Musa al-Asy'ari"],
+            answer: 0,
+            exp: "Perawi Hadits 1 adalah Sufyan bin Abdillah ats-Tsaqafi radhiyallahu 'anhu."
+          },
+          {
+            q: "Siapa khalifah yang pernah mengangkat Sufyan bin Abdillah ats-Tsaqafi sebagai amil zakat di Thaif?",
+            arabic: "",
+            options: ["Abu Bakar as-Siddiq", "Umar bin al-Khaththab", "Utsman bin Affan", "Ali bin Abi Thalib"],
+            answer: 1,
+            exp: "Umar bin al-Khaththab radhiyallahu 'anhu pernah menjadikan beliau sebagai amil zakat di daerah Thaif."
+          },
+          {
+            q: "Lengkapilah potongan lafadz hadits berikut: ((قُلْ آمَنْتُ بِاللهِ ثُمَّ ...))",
+            arabic: "قُلْ آمَنْتُ بِاللهِ ثُمَّ اسْتَقِمْ",
+            options: ["اسْتَقِمْ", "اصْبِرْ", "اعْمَلْ", "اتَّقِ"],
+            answer: 0,
+            exp: "Lafadz lengkapnya adalah: ((قُلْ آمَنْتُ بِاللهِ ثُمَّ اسْتَقِمْ)) yang artinya 'Katakanlah: Aku beriman kepada Allah kemudian istiqamahlah'."
+          },
+          {
+            q: "Apakah arti dari potongan kata 'ثُمَّ اسْتَقِمْ' dalam Hadits 1?",
+            arabic: "ثُمَّ اسْتَقِمْ",
+            options: ["Kemudian bersabarlah", "Kemudian istiqamahlah!", "Kemudian berdzikirlah", "Kemudian shalatlah"],
+            answer: 1,
+            exp: "'ثُمَّ اسْتَقِمْ' bermakna 'Kemudian istiqamahlah (konsisten di atas ketaatan kepada Allah)'."
+          },
+          {
+            q: "Apa faedah utama dari antusiasme sahabat dalam mengajukan pertanyaan kepada Rasulullah ﷺ?",
+            arabic: "",
+            options: [
+              "Menunjukkan keinginan mereka agar dipuji orang lain",
+              "Antusias untuk beribadah kepada Allah di atas ilmu",
+              "Hanya sekadar menghafal tanpa diamalkan",
+              "Mencari keuntungan duniawi"
+            ],
+            answer: 1,
+            exp: "Sahabat antusias bertanya perkara agama agar bisa beribadah kepada Allah di atas ilmu dan pemahaman yang benar."
+          },
+          {
+            q: "Berikut ini yang merupakan contoh tanda perilaku ISTIQAMAH dalam kehidupan sehari-hari adalah...",
+            arabic: "",
+            options: [
+              "Mengerjakan shalat fardhu secara berjamaah di masjid",
+              "Shalat sendiri di rumah tanpa alasan syar'i",
+              "Durhaka kepada kedua orang tua",
+              "Berkata bohong demi kebaikan pribadi"
+            ],
+            answer: 0,
+            exp: "Mengerjakan shalat secara berjamaah di masjid merupakan salah satu tanda utama sikap istiqamah."
+          },
+          {
+            q: "Lawan dari sikap 'Berbakti kepada kedua orang tua' dalam tabel tanda istiqamah adalah...",
+            arabic: "",
+            options: ["Shalat di rumah", "Durhaka kepada kedua orang tua", "Suka berbohong", "Meninggalkan dzikir"],
+            answer: 1,
+            exp: "Lawan dari sikap berbakti kepada orang tua (birrul walidain) adalah durhaka kepada kedua orang tua ('uququl walidain)."
+          },
+          {
+            q: "Apakah syarat diterimanya amalan seorang hamba menurut faedah Hadits 1?",
+            arabic: "",
+            options: [
+              "Beriman kepada Allah, mengikuti Sunnah Rasul-Nya, dan istiqamah",
+              "Memiliki harta yang banyak dan rajin bersedekah saja",
+              "Menjadi pejabat yang disegani di masyarakat",
+              "Cukup dengan niat baik tanpa beramal saleh"
+            ],
+            answer: 0,
+            exp: "Allah tidak akan menerima amalan hamba sebelum ia beriman kepada Allah, mengikuti Sunnah Rasul-Nya, dan istiqamah di atas ketaatan."
+          },
+          {
+            q: "Sikap istiqamah harus mencakup dua hal utama, yaitu...",
+            arabic: "",
+            options: [
+              "Melaksanakan perintah-Nya dan menjauhi larangan-Nya",
+              "Membaca Al-Qur'an dan tidak perlu shalat",
+              "Berpuasa sepanjang tahun tanpa henti",
+              "Menuntut ilmu tanpa pernah mengamalkannya"
+            ],
+            answer: 0,
+            exp: "Wajib bagi muslim untuk istiqamah melaksanakan perintah-perintah Allah dan menjauhi larangan-larangan-Nya."
+          },
+          {
+            q: "Sufyan bin Abdillah bertanya kepada Rasulullah ﷺ tentang ucapan dalam Islam yang...",
+            arabic: "",
+            options: [
+              "Tidak perlu ia tanyakan lagi kepada seorang pun setelah beliau",
+              "Paling panjang dan paling sulit dihafal",
+              "Dapat mendatangkan kekayaan berlimpah",
+              "Hanya berlaku untuk para sahabat saja"
+            ],
+            answer: 0,
+            exp: "Beliau meminta perkataan yang sangat padat dan ringkas sehingga tidak perlu bertanya lagi kepada siapapun."
+          },
+          {
+            q: "Menggabungkan antara iman dan amal saleh hukumnya adalah...",
+            arabic: "",
+            options: ["Wajib", "Sunnah", "Makruh", "Mubah"],
+            answer: 0,
+            exp: "Wajib menggabungkan antara iman dalam hati dan amal saleh dalam perbuatan."
+          },
+          {
+            q: "Manakah di bawah ini yang MERUPAKAN lawan dari perilaku jujur?",
+            arabic: "",
+            options: ["Bohong / Dusta", "Sabar", "Istiqamah", "Tawadhu"],
+            answer: 0,
+            exp: "Lawan dari kejujuran adalah kebohongan atau kedustaan."
+          },
+          {
+            q: "Mengapa para sahabat disebut orang-orang yang antusias mempelajari agama Islam?",
+            arabic: "",
+            options: [
+              "Karena selalu bertanya hal yang belum dipahami langsung kepada Nabi",
+              "Karena mereka tidak pernah bertanya sama sekali",
+              "Karena mereka hanya berdebat satu sama lain",
+              "Karena mereka mengabaikan ajaran Nabi"
+            ],
+            answer: 0,
+            exp: "Sahabat antusias bertanya kepada Rasulullah ﷺ mengenai segala sesuatu yang belum mereka pahami."
+          },
+          {
+            q: "Di manakah Sufyan bin Abdillah ats-Tsaqafi bertugas mengelola zakat?",
+            arabic: "",
+            options: ["Thaif", "Kufah", "Basrah", "Madinah"],
+            answer: 0,
+            exp: "Beliau ditugaskan oleh Umar bin Khaththab sebagai amil zakat di wilayah Thaif."
+          },
+          {
+            q: "Kata 'آمَنْتُ' dalam hadits memiliki arti...",
+            arabic: "آمَنْتُ",
+            options: ["Aku beriman", "Kamu beriman", "Dia beriman", "Kami beriman"],
+            answer: 0,
+            exp: "'آمَنْتُ' adalah fi'il madhi dengan dhamir tu yang artinya 'Aku telah beriman'."
+          },
+          {
+            q: "Seseorang yang istiqamah akan tetap berbuat baik meskipun...",
+            arabic: "",
+            options: [
+              "Tidak ada orang lain yang melihatnya",
+              "Diberi imbalan uang saja",
+              "Dipuji oleh gurunya saja",
+              "Sedang dilihat oleh teman-temannya"
+            ],
+            answer: 0,
+            exp: "Istiqamah adalah konsisten beribadah dan taat karena Allah, baik di kala ramai maupun sendiri."
+          },
+          {
+            q: "Konsep Istiqamah diawali dengan pembenahan...",
+            arabic: "",
+            options: ["Iman dan Hati", "Pakaian", "Kekayaan", "Gelar akademik"],
+            answer: 0,
+            exp: "Nabi bersabda 'Katakanlah Aku beriman kepada Allah' terlebih dahulu, menunjukkan iman adalah fondasi utama."
+          },
+          {
+            q: "Apakah hukum mempelajari perkara agama yang belum diketahui agar ibadah benar?",
+            arabic: "",
+            options: ["Wajib", "Haram", "Makruh", "Mubah"],
+            answer: 0,
+            exp: "Menuntut ilmu agama agar ibadah sesuai syariat adalah kewajiban bagi setiap muslim."
+          },
+          {
+            q: "Kasus: Ahmad selalu berprasangka baik dan beramal konsisten tiap hari walau sedikit. Sikap Ahmad mencerminkan...",
+            arabic: "",
+            options: ["Istiqamah", "Riya'", "Ujub", "Takabbur"],
+            answer: 0,
+            exp: "Amal yang dawam (konsisten) meskipun sedikit adalah bentuk nyata istiqamah."
+          },
+          {
+            q: "Aplikasi nilai Hadits 1 dalam kehidupan sekolah adalah...",
+            arabic: "",
+            options: [
+              "Disiplin mengerjakan piket kelas dan jujur saat ujian",
+              "Hanya belajar jika akan ada penilaian dari guru",
+              "Menyontek saat ujian STS Pendidikan Akhlak",
+              "Membawa HP saat jam pelajaran tanpa izin"
+            ],
+            answer: 0,
+            exp: "Disiplin dan jujur secara terus-menerus adalah penerapan karakter istiqamah di sekolah."
+          }
+        ]
+      },
+      {
+        id: 2,
+        title: "Hadits 2 - Manisnya Iman",
+        subtitle: "Perawi: Anas bin Malik al-Anshari",
+        questions: [
+          {
+            q: "Siapakah perawi Hadits 2 tentang Manisnya Iman?",
+            arabic: "",
+            options: ["Anas bin Malik al-Anshari", "Sufyan bin Abdillah", "Jabir bin Abdillah", "Abu Musa al-Asy'ari"],
+            answer: 0,
+            exp: "Perawi Hadits 2 adalah sahabat Anas bin Malik al-Anshari radhiyallahu 'anhu."
+          },
+          {
+            q: "Berapa tahun Anas bin Malik al-Anshari menjadi pelayan Rasulullah ﷺ?",
+            arabic: "",
+            options: ["10 Tahun", "5 Tahun", "15 Tahun", "20 Tahun"],
+            answer: 0,
+            exp: "Anas bin Malik menjadi pelayan Rasulullah ﷺ selama 10 tahun sejak beliau berusia 10 tahun."
+          },
+          {
+            q: "Pada usia berapa dan tahun berapa Hijriah sahabat Anas bin Malik meninggal dunia di Basrah?",
+            arabic: "",
+            options: [
+              "Tahun 93 H pada usia 103 tahun",
+              "Tahun 74 H pada usia 94 tahun",
+              "Tahun 42 H pada usia 80 tahun",
+              "Tahun 100 H pada usia 90 tahun"
+            ],
+            answer: 0,
+            exp: "Beliau meninggal pada tahun 93 H dalam usia 103 tahun dan merupakan sahabat terakhir yang meninggal di Basrah."
+          },
+          {
+            q: "Apakah doa khusus yang dipanjatkan Rasulullah ﷺ untuk Anas bin Malik?",
+            arabic: "",
+            options: [
+              "Keberkahan harta, anak, dan umur yang panjang",
+              "Kekuasaan menjadi raja di Arab",
+              "Kemenangan dalam seluruh peperangan tanpa luka",
+              "Menjadi pedagang terkaya di Mekah"
+            ],
+            answer: 0,
+            exp: "Rasulullah ﷺ mendoakan beliau agar diberkahi harta, banyak anak, dan dipanjangkan umurnya."
+          },
+          {
+            q: "Apakah arti dari kata 'حَلَاوَةَ الإِيمَانِ' dalam Hadits 2?",
+            arabic: "حَلَاوَةَ الإِيمَانِ",
+            options: ["Manisnya / Lezatnya Iman", "Kuatnya Iman", "Rukun Iman", "Penyempurna Iman"],
+            answer: 0,
+            exp: "'حَلَاوَةَ الإِيمَانِ' bermakna lezatnya iman, yaitu ketenangan hati dan kecintaan mengerjakan ketaatan."
+          },
+          {
+            q: "Berapa perkara yang disebutkan dalam hadits yang membuat seseorang merasakah manisnya iman?",
+            arabic: "ثَلَاثٌ مَنْ كُنَّ فِيهِ...",
+            options: ["3 Perkara", "5 Perkara", "7 Perkara", "10 Perkara"],
+            answer: 0,
+            exp: "Hadits menyebutkan: ((ثَلَاثٌ مَنْ كُنَّ فِيهِ وَجَدَ حَلَاوَةَ الإِيمَانِ...)) yaitu 3 perkara."
+          },
+          {
+            q: "Perkara PERTAMA untuk merasakan manisnya iman menurut Hadits 2 adalah...",
+            arabic: "",
+            options: [
+              "Allah dan Rasul-Nya lebih dicintai daripada selain keduanya",
+              "Mencintai seseorang karena hartanya",
+              "Suka bepergian ke tempat-tempat indah",
+              "Menginginkan pujian dari manusia"
+            ],
+            answer: 0,
+            exp: "Perkara pertama adalah mencintai Allah dan Rasul-Nya melebihi cintanya kepada siapapun dan apapun."
+          },
+          {
+            q: "Perkara KEDUA untuk merasakan manisnya iman adalah mencintai seseorang semata-mata karena...",
+            arabic: "",
+            options: ["Allah semata", "Harta dan jabatannya", "Hubungan keluarga", "Kecantikannya"],
+            answer: 0,
+            exp: "Mencintai saudara mukmin semata-mata karena Allah (Mahabbah fillah)."
+          },
+          {
+            q: "Perkara KETIGA untuk merasakan manisnya iman adalah benci kembali kepada kekafiran sebagaimana benci untuk...",
+            arabic: "",
+            options: [
+              "Dilempar ke dalam api neraka",
+              "Kehilangan harta benda",
+              "Ditinggalkan teman",
+              "Jatuh sakit"
+            ],
+            answer: 0,
+            exp: "Benci kembali kepada kekafiran sebagaimana ia benci dilempar ke dalam api."
+          },
+          {
+            q: "Apakah makna kata 'ثَلَاثٌ' dalam kosakata Hadits 2?",
+            arabic: "ثَلَاثٌ",
+            options: ["Tiga perangai atau sifat", "Tiga orang sahabat", "Tiga hari berturut-turut", "Tiga kali shalat"],
+            answer: 0,
+            exp: "'ثَلَاثٌ' bermakna tiga perangai, sifat, atau perkara."
+          },
+          {
+            q: "Kebencian terhadap orang kafir dalam muamalah tidak berarti...",
+            arabic: "",
+            options: [
+              "Haram bermuamalah jual beli secara halal dengan mereka",
+              "Boleh berbuat zalim kepada siapapun",
+              "Membeli barang mereka hukumnya wajib",
+              "Boleh mencuri harta mereka"
+            ],
+            answer: 0,
+            exp: "Membenci kekafiran bukan berarti haram melakukan jual beli atau muamalah yang halal dan adil dengan mereka."
+          },
+          {
+            q: "Anas bin Malik al-Anshari meriwayatkan banyak hadits karena...",
+            arabic: "",
+            options: [
+              "Lama mendampingi dan melayani Rasulullah ﷺ",
+              "Selalu tinggal di dalam rumah saja",
+              "Menulis buku harian pribadi",
+              "Suka berdebat dengan sahabat lain"
+            ],
+            answer: 0,
+            exp: "Karena beliau menjadi khadim (pelayan) Nabi selama 10 tahun sehingga memperoleh banyak ilmu."
+          },
+          {
+            q: "Di kota manakah sahabat Anas bin Malik al-Anshari wafat?",
+            arabic: "",
+            options: ["Basrah", "Kufah", "Madinah", "Mekah"],
+            answer: 0,
+            exp: "Anas bin Malik wafat di kota Basrah pada tahun 93 H."
+          },
+          {
+            q: "Di antara sifat orang mukmin adalah mengedepankan kecintaan kepada...",
+            arabic: "",
+            options: [
+              "Allah dan Rasul-Nya di atas selain keduanya",
+              "Harta benda di atas ketaatan",
+              "Diri sendiri di atas agama",
+              "Teman sejawat di atas orang tua"
+            ],
+            answer: 0,
+            exp: "Sifat mukmin sejati mengedepankan cinta Allah dan Rasul-Nya melebihi cinta pada orang tua, anak, maupun diri sendiri."
+          },
+          {
+            q: "Perasaan tenang, lapang dada, dan gembira saat beribadah merupakan wujud dari...",
+            arabic: "",
+            options: ["Manisnya Iman", "Riya'", "Ujub", "Kesombongan"],
+            answer: 0,
+            exp: "Manisnya iman tercermin dari lezatnya ketaatan dan ketenangan jiwa saat beribadah."
+          },
+          {
+            q: "Anas bin Malik radhiyallahu 'anhu berasal dari kaum...",
+            arabic: "",
+            options: ["Anshari (Madinah)", "Muhajirin (Mekah)", "Quraisy", "Tsaqif"],
+            answer: 0,
+            exp: "Beliau adalah Anas bin Malik al-Anshari dari penduduk Madinah (Anshar)."
+          },
+          {
+            q: "Seseorang yang mencintai temannya karena selalu mengajaknya shalat jamaah termasuk contoh...",
+            arabic: "",
+            options: [
+              "Mencintai seseorang karena Allah",
+              "Mencintai karena keuntungan dunia",
+              "Sikap riya' dalam berteman",
+              "Mencintai secara berlebihan"
+            ],
+            answer: 0,
+            exp: "Mencintai seseorang karena ketaatannya kepada Allah adalah bentuk cinta karena Allah semata."
+          },
+          {
+            q: "Wajib bagi seorang muslim untuk membenci kekafiran dan...",
+            arabic: "",
+            options: ["Pelaku kekafiran", "Semua manusia tanpa terkecuali", "Para nabi", "Amal saleh"],
+            answer: 0,
+            exp: "Muslim wajib membenci kekafiran beserta perbuatan syirik dan kufur."
+          },
+          {
+            q: "Siapakah sahabat Nabi yang paling terakhir meninggal di Basrah?",
+            arabic: "",
+            options: ["Anas bin Malik al-Anshari", "Abu Musa al-Asy'ari", "Jabir bin Abdillah", "Sufyan bin Abdillah"],
+            answer: 0,
+            exp: "Anas bin Malik al-Anshari adalah sahabat Nabi terakhir yang meninggal dunia di Basrah."
+          },
+          {
+            q: "Mengapa iman memiliki rasa 'manis'?",
+            arabic: "",
+            options: [
+              "Karena memberikan kelezatan batiniah yang melebihi kenikmatan duniawi",
+              "Karena bisa dimakan seperti kue",
+              "Karena membuat seseorang tidak perlu bekerja",
+              "Karena dijamin kaya raya di dunia"
+            ],
+            answer: 0,
+            exp: "Iman dirasakan manis secara ruhani bagi orang yang memenuhi syarat-syaratnya."
+          }
+        ]
+      },
+      {
+        id: 3,
+        title: "Hadits 3 - Meninggalkan Shalat",
+        subtitle: "Perawi: Jabir bin Abdillah al-Anshari",
+        questions: [
+          {
+            q: "Siapakah perawi Hadits 3 tentang bahaya Meninggalkan Shalat?",
+            arabic: "",
+            options: ["Jabir bin Abdillah al-Anshari", "Sufyan bin Abdillah", "Anas bin Malik", "Abu Musa al-Asy'ari"],
+            answer: 0,
+            exp: "Perawi Hadits 3 adalah Jabir bin Abdillah al-Khazraji al-Anshari radhiyallahu 'anhu."
+          },
+          {
+            q: "Nama dan nasab lengkap perawi Hadits 3 adalah Abu Abdillah Jabir bin Abdillah...",
+            arabic: "",
+            options: ["al-Khazraji as-Sulami", "ats-Tsaqafi", "al-Asy'ari", "al-Qurasyi"],
+            answer: 0,
+            exp: "Nama lengkap beliau adalah Abu Abdillah Jabir bin Abdillah al-Khazraji as-Sulami."
+          },
+          {
+            q: "Mengapa Jabir bin Abdillah dilarang oleh ayahnya ikut dalam Perang Badar dan Uhud?",
+            arabic: "",
+            options: [
+              "Untuk mengurus 9 orang saudara perempuannya",
+              "Karena beliau masih terlalu penakut",
+              "Karena beliau sedang sakit keras",
+              "Karena beliau bertugas di pasar"
+            ],
+            answer: 0,
+            exp: "Ayah beliau meminta Jabir menjaga dan mengurus 9 saudara perempuannya."
+          },
+          {
+            q: "Perang apakah yang PERTAMA KALI diikuti oleh Jabir bin Abdillah setelah ayahnya gugur di Uhud?",
+            arabic: "",
+            options: ["Perang Khandaq", "Perang Badar", "Perang Hunain", "Perang Tabuk"],
+            answer: 0,
+            exp: "Setelah ayahnya gugur di Uhud, perang pertama yang diikuti Jabir adalah Perang Khandaq."
+          },
+          {
+            q: "Pada tahun berapa Hijriah dan usia berapa sahabat Jabir bin Abdillah wafat di Madinah?",
+            arabic: "",
+            options: [
+              "Tahun 74 H pada usia 94 tahun",
+              "Tahun 93 H pada usia 103 tahun",
+              "Tahun 42 H pada usia 80 tahun",
+              "Tahun 50 H pada usia 70 tahun"
+            ],
+            answer: 0,
+            exp: "Beliau wafat di Madinah pada tahun 74 H dalam usia 94 tahun."
+          },
+          {
+            q: "Lengkapilah matan hadits: ((إِنَّ بَيْنَ الرَّجُلِ وَبَيْنَ الشِّرْكِ وَالْكُفْرِ ...))",
+            arabic: "إِنَّ بَيْنَ الرَّجُلِ وَبَيْنَ الشِّرْكِ وَالْكُفْرِ تَرْكَ الصَّلَاةِ",
+            options: ["تَرْكَ الصَّلَاةِ", "تَرْكَ الزَّكَاةِ", "تَرْكَ الصِّيَامِ", "تَرْكَ الْحَجِّ"],
+            answer: 0,
+            exp: "Lafadz lengkapnya: ((إِنَّ بَيْنَ الرَّجُلِ وَبَيْنَ الشِّرْكِ وَالْكُفْرِ تَرْكَ الصَّلَاةِ))"
+          },
+          {
+            q: "Apakah makna dari hadits 'Pembeda antara seseorang dengan kesyirikan dan kekafiran'?",
+            arabic: "",
+            options: [
+              "Meninggalkan shalat",
+              "Meninggalkan sedekah",
+              "Tidak berpuasa Ramadhan",
+              "Tidak berbuat baik pada tetangga"
+            ],
+            answer: 0,
+            exp: "Pembatas dan pembeda utama antara seorang muslim dengan kesyirikan/kekafiran adalah shalat."
+          },
+          {
+            q: "Apakah kedudukan shalat dalam agama Islam menurut faedah hadits?",
+            arabic: "",
+            options: ["Tiang Agama", "Amalan Pelengkap", "Hanya Kewajiban Orang Tua", "Ibadah Sunnah Muakkad"],
+            answer: 0,
+            exp: "Shalat adalah tiang agama (Ruknun min arkanil Islam) yang menegakkan keislaman seseorang."
+          },
+          {
+            q: "Amalan apakah yang pertama kali akan dihisab/ditanya pada hari kiamat kelak?",
+            arabic: "",
+            options: ["Shalat", "Zakat", "Haji", "Sedekah"],
+            answer: 0,
+            exp: "Amalan hamba yang pertama kali diperiksa dan dihisab pada hari kiamat adalah shalatnya."
+          },
+          {
+            q: "Hukum mendahulukan amalan/urusan duniawi daripada mengerjakan shalat tepat waktu adalah...",
+            arabic: "",
+            options: [
+              "Dilarang / Wajib segera shalat",
+              "Sangat dianjurkan",
+              "Boleh-boleh saja tanpa batas",
+              "Mendapatkan pahala berganda"
+            ],
+            answer: 0,
+            exp: "Wajib atas muslim untuk segera mengerjakan shalat dan tidak mengedepankan amalan/urusan apapun darinya."
+          },
+          {
+            q: "Jabir bin Abdillah pernah ikut serta dalam ikrar janji setia yang terkenal yaitu...",
+            arabic: "",
+            options: ["Bai'at al-Aqabah", "Fathu Mekah", "Perang Tabuk", "Perjanjian Hudaibiyah saja"],
+            answer: 0,
+            exp: "Jabir bin Abdillah ikut serta dalam Bai'at al-Aqabah bersama ayahnya ketika masih kecil."
+          },
+          {
+            q: "Termasuk kelompok sahabat manakah Jabir bin Abdillah dalam hal periwayatan hadits?",
+            arabic: "",
+            options: [
+              "Sahabat yang terbanyak meriwayatkan hadits",
+              "Sahabat yang hanya meriwayatkan 1 hadits",
+              "Sahabat yang dilarang meriwayatkan hadits",
+              "Sahabat yang tidak pernah mendengar hadits"
+            ],
+            answer: 0,
+            exp: "Jabir bin Abdillah termasuk dalam jajaran sahabat yang terbanyak meriwayatkan hadits dari Rasulullah ﷺ."
+          },
+          {
+            q: "Shalat memiliki banyak manfaat bagi kehidupan manusia, baik di...",
+            arabic: "",
+            options: ["Dunia dan Akhirat", "Dunia saja", "Akhirat saja", "Alam kubur saja"],
+            answer: 0,
+            exp: "Shalat mendatangkan kebaikan dan keberkahan di dunia serta pahala sangat besar di akhirat."
+          },
+          {
+            q: "Apa akibat bagi seseorang yang meremehkan atau meninggalkan shalat?",
+            arabic: "",
+            options: [
+              "Terancam jatuh ke dalam jurang kekafiran dan dosa besar",
+              "Akan semakin dicintai Allah",
+              "Pahalanya bertambah ganda",
+              "Dimaafkan tanpa perlu bertaubat"
+            ],
+            answer: 0,
+            exp: "Meninggalkan shalat merupakan dosa yang sangat bahaya dan menjadi pembeda menuju kekafiran."
+          },
+          {
+            q: "Agama Islam tidak akan tegak tanpa adanya...",
+            arabic: "",
+            options: ["Shalat", "Kekayaan harta", "Senjata perang", "Bangunan megah"],
+            answer: 0,
+            exp: "Agama Islam tidak dapat berdiri tegak tanpa ditegakkannya ibadah shalat."
+          },
+          {
+            q: "Gerakan dalam shalat yang dilakukan secara sengaja hingga membatalkan shalat harus...",
+            arabic: "",
+            options: [
+              "Dihindari dan diperbaiki cara shalatnya",
+              "Dibiarkan saja",
+              "Diulangi setiap menit",
+              "Mendapat pujian"
+            ],
+            answer: 0,
+            exp: "Muslim wajib menjaga keabsahan shalatnya dari hal-hal yang membatalkannya."
+          },
+          {
+            q: "Berapakah jumlah saudara perempuan yang diurus oleh Jabir bin Abdillah?",
+            arabic: "",
+            options: ["9 orang", "3 orang", "5 orang", "12 orang"],
+            answer: 0,
+            exp: "Ayah beliau meninggalkan 9 orang anak perempuan yang diurus oleh Jabir."
+          },
+          {
+            q: "Jabir bin Abdillah meriwayatkan hadits dari Nabi ﷺ di kota...",
+            arabic: "",
+            options: ["Madinah", "Kufah", "Mesir", "Baghdad"],
+            answer: 0,
+            exp: "Beliau wafat dan banyak mengajarkan hadits di kota Madinah Al-Munawwarah."
+          },
+          {
+            q: "Sikap terbaik ketika mendengar azan berkumandang adalah...",
+            arabic: "",
+            options: [
+              "Segera bersiap-siap mengerjakan shalat di masjid",
+              "Lanjut bermain game hingga iqamah",
+              "Tidur kembali",
+              "Acuh tak acuh"
+            ],
+            answer: 0,
+            exp: "Segera penuhi panggilan azan dan mengutamakan shalat tepat waktu."
+          },
+          {
+            q: "Hadits tentang meninggalkan shalat mengajarkan kita agar...",
+            arabic: "",
+            options: [
+              "Disiplin dan konsisten menjaga shalat lima waktu",
+              "Mengerjakan shalat hanya saat ujian",
+              "Shalat jika diberi uang saku saja",
+              "Hanya shalat Jumat saja"
+            ],
+            answer: 0,
+            exp: "Pengajaran utama adalah disiplin dan istiqamah menjaga shalat fardhu lima waktu."
+          }
+        ]
+      },
+      {
+        id: 4,
+        title: "Hadits 4 - Keutamaan Dzikir",
+        subtitle: "Perawi: Abu Musa al-Asy'ari",
+        questions: [
+          {
+            q: "Siapakah nama asli perawi Hadits 4 yang memiliki kunyah Abu Musa al-Asy'ari?",
+            arabic: "",
+            options: ["Abdullah bin Qais", "Sufyan bin Abdillah", "Anas bin Malik", "Jabir bin Abdillah"],
+            answer: 0,
+            exp: "Nama asli Abu Musa al-Asy'ari adalah Abdullah bin Qais al-Asy'ari radhiyallahu 'anhu."
+          },
+          {
+            q: "Ke manakah tempat hijrah pertama sahabat Abu Musa al-Asy'ari setelah masuk Islam di Mekah?",
+            arabic: "",
+            options: ["Habasyah (Ethiopia)", "Madinah", "Thaif", "Yaman"],
+            answer: 0,
+            exp: "Beliau masuk Islam di Mekah lalu berhijrah ke negeri Habasyah."
+          },
+          {
+            q: "Jabatan apa yang pernah diemban Abu Musa al-Asy'ari pada masa pemerintahan Umar dan Utsman?",
+            arabic: "",
+            options: [
+              "Gubernur Basrah (Umar) & Gubernur Kufah (Utsman)",
+              "Panglima Perang di Mesir saja",
+              "Bendahara Baitul Maal Madinah",
+              "Hakim Agung di Mekah"
+            ],
+            answer: 0,
+            exp: "Beliau diangkat sebagai Gubernur Basrah oleh Umar dan Gubernur Kufah oleh Utsman."
+          },
+          {
+            q: "Keistimewaan apakah yang dimiliki Abu Musa al-Asy'ari dalam membaca Al-Qur'an?",
+            arabic: "",
+            options: [
+              "Suara sangat merdu seakan diberi seruling dari seruling keluarga Daud",
+              "Bisa membaca Al-Qur'an dalam 1 detik",
+              "Suaranya tidak terdengar oleh orang lain",
+              "Hanya membaca saat malam hari"
+            ],
+            answer: 0,
+            exp: "Rasulullah ﷺ memuji merdunya suara beliau seakan-akan dikaruniai seruling keluarga Nabi Daud 'alaihissalam."
+          },
+          {
+            q: "Pada tahun berapa Hijriah sahabat Abu Musa al-Asy'ari wafat?",
+            arabic: "",
+            options: ["Tahun 42 H", "Tahun 93 H", "Tahun 74 H", "Tahun 100 H"],
+            answer: 0,
+            exp: "Sahabat Abu Musa al-Asy'ari wafat pada tahun 42 H."
+          },
+          {
+            q: "Rasulullah ﷺ membuat perumpamaan orang yang berdzikir dan yang tidak berdzikir seperti...",
+            arabic: "مَثَلُ الَّذِي يَذْكُرُ رَبَّهُ وَالَّذِي لَا يَذْكُرُ رَبَّهُ مَثَلُ الْحَيِّ وَالْمَيِّتِ",
+            options: [
+              "Orang yang hidup dan orang yang mati",
+              "Orang yang kaya dan orang yang miskin",
+              "Orang yang kuat dan orang yang lemah",
+              "Matahari dan Bulan"
+            ],
+            answer: 0,
+            exp: "Nabi bersabda perumpamaannya seperti perbandingan antara 'orang yang hidup dan orang yang mati'."
+          },
+          {
+            q: "Apakah yang dimaksud dengan dzikir kepada Allah?",
+            arabic: "",
+            options: [
+              "Mengingat Allah dengan tasbih, tahmid, tahlil, membaca Qur'an, dll",
+              "Hanya berdiam diri tanpa mengucapkan apapun",
+              "Menyebut-nyebut kebaikan diri sendiri",
+              "Mengingat harta kekayaan"
+            ],
+            answer: 0,
+            exp: "Dzikir adalah mengingat Allah melalui kalimat thayyibah (tasbih, tahmid, tahlil, takbir) dan membaca Al-Qur'an."
+          },
+          {
+            q: "Mengapa orang yang tidak berdzikir diumpamakan seperti orang mati?",
+            arabic: "",
+            options: [
+              "Karena hatinya mati dari mengingat dan merasa dekat dengan Allah",
+              "Karena fisiknya tidak bergerak",
+              "Karena dia tidak bisa bernapas lagi",
+              "Karena dia tidur lelap"
+            ],
+            answer: 0,
+            exp: "Hati orang yang tidak berdzikir menjadi gersang dan mati dari cahaya ketaatan."
+          },
+          {
+            q: "Manfaat apakah yang diperoleh seorang muslim yang rajin berdzikir?",
+            arabic: "",
+            options: [
+              "Ketenteraman hati dan terjaga dari godaan setan",
+              "Langsung mendapatkan uang tunai",
+              "Tidak perlu bekerja mencari nafkah",
+              "Pasti menjadi orang terkenal"
+            ],
+            answer: 0,
+            exp: "Dzikir memberikan ketergantungan pada Allah, ketenteraman jiwa, dan perlindungan dari setan."
+          },
+          {
+            q: "Bentuk zikir syar'i berikut ini yang BENAR adalah...",
+            arabic: "",
+            options: [
+              "Membaca Tasbih, Tahmid, Takbir, dan Al-Qur'an",
+              "Menyanyi lagu modern di masjid",
+              "Menyebut nama-nama patung",
+              "Melamun tanpa mengingat Allah"
+            ],
+            answer: 0,
+            exp: "Tasbih (Subhanallah), Tahmid (Alhamdulillah), Takbir (Allahu Akbar) & Al-Qur'an adalah zikir syar'i."
+          },
+          {
+            q: "Kalimat 'Subhanallah' disebut juga dengan bacaan...",
+            arabic: "",
+            options: ["Tasbih", "Tahmid", "Tahlil", "Takbir"],
+            answer: 0,
+            exp: "Subhanallah adalah bacaan Tasbih."
+          },
+          {
+            q: "Kalimat 'Alhamdulillah' disebut juga dengan bacaan...",
+            arabic: "",
+            options: ["Tahmid", "Tasbih", "Tahlil", "Takbir"],
+            answer: 0,
+            exp: "Alhamdulillah adalah bacaan Tahmid."
+          },
+          {
+            q: "Kalimat 'Laa ilaha illallah' disebut juga dengan bacaan...",
+            arabic: "",
+            options: ["Tahlil", "Tasbih", "Tahmid", "Takbir"],
+            answer: 0,
+            exp: "Laa ilaha illallah adalah bacaan Tahlil."
+          },
+          {
+            q: "Dzikir kepada Allah merupakan kehidupan bagi...",
+            arabic: "",
+            options: ["Hati dan Jiwa", "Pakaian", "Kekayaan harta", "Rumah tinggal"],
+            answer: 0,
+            exp: "Dzikir adalah nutrisi dan kehidupan utama bagi hati seorang mukmin."
+          },
+          {
+            q: "Seorang muslim hendaknya senantiasa basah lidahnya dengan...",
+            arabic: "",
+            options: ["Dzikrullah (Mengingat Allah)", "Perkataan sia-sia", "Ghibah dan fitnah", "Keluhan"],
+            answer: 0,
+            exp: "Dianjurkan agar lidah seorang muslim senantiasa basah dengan berdzikir kepada Allah."
+          },
+          {
+            q: "Peran Abu Musa al-Asy'ari selain sebagai gubernur adalah sebagai...",
+            arabic: "",
+            options: ["Da'i dan Pengajar Al-Qur'an", "Pedagang rempah", "Nakhoda kapal", "Petani gandum"],
+            answer: 0,
+            exp: "Beliau diutus Nabi dan para Khulafaur Rasyidin sebagai da'i dan pengajar agama."
+          },
+          {
+            q: "Keadaan bagaimanakah yang dianjurkan untuk berdzikir?",
+            arabic: "",
+            options: [
+              "Dalam setiap keadaan (berdiri, duduk, maupun berbaring)",
+              "Hanya saat tertimpa musibah saja",
+              "Hanya saat berada di dalam kelas",
+              "Hanya saat dilihat orang banyak"
+            ],
+            answer: 0,
+            exp: "Seorang muslim dianjurkan berdzikir dalam setiap keadaan dan tempat yang suci."
+          },
+          {
+            q: "Orang yang berpaling dari dzikir kepada Allah akan merasa...",
+            arabic: "",
+            options: ["Sempit hatinya dan mudah terpengaruh setan", "Sangat bahagia", "Selalu aman", "Pasti masuk surga"],
+            answer: 0,
+            exp: "Berpaling dari dzikir membuat hati menjadi sempit dan rawan dikuasai setan."
+          },
+          {
+            q: "Abu Musa al-Asy'ari dikaruniai suara merdu yang dipuji oleh Rasulullah ﷺ ketika membaca...",
+            arabic: "",
+            options: ["Al-Qur'an al-Karim", "Syair Arab", "Buku sejarah", "Surat keputusan"],
+            answer: 0,
+            exp: "Nabi mendengarkan bacaan Al-Qur'an beliau di malam hari dan memujinya."
+          },
+          {
+            q: "Aplikasi nilai Hadits 4 sebelum memulai pelajaran sekolah adalah...",
+            arabic: "",
+            options: [
+              "Membaca doa dan berdzikir mengingat Allah",
+              "Ngobrol dengan suara keras",
+              "Bermain di luar kelas",
+              "Tidur di atas meja"
+            ],
+            answer: 0,
+            exp: "Berdoa dan berdzikir sebelum belajar adalah wujud pengamalan Hadits 4."
+          }
+        ]
+      },
+      {
+        id: 5,
+        title: "Level 5 - Evaluasi Akhir Master Akhlak & Hadits",
+        subtitle: "Gabungan Kisi-Kisi 100 Soal Lengkap",
+        questions: [
+          {
+            q: "Urutkan perawi Hadits 1, 2, 3, dan 4 secara berurutan!",
+            arabic: "",
+            options: [
+              "Sufyan bin Abdillah, Anas bin Malik, Jabir bin Abdillah, Abu Musa al-Asy'ari",
+              "Anas bin Malik, Sufyan bin Abdillah, Abu Musa, Jabir bin Abdillah",
+              "Jabir bin Abdillah, Abu Musa, Anas bin Malik, Sufyan bin Abdillah",
+              "Abu Musa, Jabir bin Abdillah, Sufyan bin Abdillah, Anas bin Malik"
+            ],
+            answer: 0,
+            exp: "Urutan perawi: Hadits 1 (Sufyan), Hadits 2 (Anas), Hadits 3 (Jabir), Hadits 4 (Abu Musa)."
+          },
+          {
+            q: "Siapakah perawi yang wafat paling akhir pada tahun 93 H dalam usia 103 tahun?",
+            arabic: "",
+            options: ["Anas bin Malik al-Anshari", "Jabir bin Abdillah", "Abu Musa al-Asy'ari", "Sufyan bin Abdillah"],
+            answer: 0,
+            exp: "Anas bin Malik wafat paling akhir di antara keempatnya, yaitu tahun 93 H usia 103 thn."
+          },
+          {
+            q: "Perawi manakah yang wafat di kota Madinah pada tahun 74 H usia 94 tahun?",
+            arabic: "",
+            options: ["Jabir bin Abdillah al-Anshari", "Anas bin Malik", "Abu Musa al-Asy'ari", "Sufyan bin Abdillah"],
+            answer: 0,
+            exp: "Jabir bin Abdillah al-Anshari wafat di Madinah tahun 74 H usia 94 thn."
+          },
+          {
+            q: "Siapakah perawi yang pernah menjabat sebagai Gubernur Kufah pada masa Utsman bin Affan?",
+            arabic: "",
+            options: ["Abu Musa al-Asy'ari", "Anas bin Malik", "Sufyan bin Abdillah", "Jabir bin Abdillah"],
+            answer: 0,
+            exp: "Abu Musa al-Asy'ari diangkat menjadi Gubernur Kufah di masa Khalifah Utsman."
+          },
+          {
+            q: "Siapakah perawi yang menjadi amil zakat di Thaif pada masa Umar bin al-Khaththab?",
+            arabic: "",
+            options: ["Sufyan bin Abdillah ats-Tsaqafi", "Anas bin Malik", "Jabir bin Abdillah", "Abu Musa al-Asy'ari"],
+            answer: 0,
+            exp: "Sufyan bin Abdillah ats-Tsaqafi ditugaskan sebagai amil zakat di Thaif."
+          },
+          {
+            q: "Apakah inti pengajaran dari Hadits 1?",
+            arabic: "",
+            options: [
+              "Kewajiban beriman kepada Allah dan konsisten (istiqamah)",
+              "Tiga perkara merasakan manisnya iman",
+              "Shalat sebagai tiang pembeda Islam dan kufur",
+              "Perumpamaan orang berdzikir seperti orang hidup"
+            ],
+            answer: 0,
+            exp: "Hadits 1 menekankan fondasi iman dan konsistensi sikap istiqamah."
+          },
+          {
+            q: "Apakah inti pengajaran dari Hadits 2?",
+            arabic: "",
+            options: [
+              "Tiga syarat merasakan lezat dan manisnya iman",
+              "Kewajiban menjalankan ibadah haji",
+              "Dosa besar meninggalkan shalat",
+              "Keutamaan melayani orang tua"
+            ],
+            answer: 0,
+            exp: "Hadits 2 menjelaskan 3 perkara yang menyebabkan seseorang merasakan manisnya iman."
+          },
+          {
+            q: "Apakah inti pengajaran dari Hadits 3?",
+            arabic: "",
+            options: [
+              "Bahaya besar meninggalkan shalat sebagai pembeda keislaman",
+              "Pentingnya perbanyak zikir tasbih",
+              "Keutamaan hijrah ke Habasyah",
+              "Anjuran menjadi amil zakat"
+            ],
+            answer: 0,
+            exp: "Hadits 3 menjelaskan shalat adalah tiang utama dan pembatas dari kekafiran."
+          },
+          {
+            q: "Apakah inti pengajaran dari Hadits 4?",
+            arabic: "",
+            options: [
+              "Keutamaan berdzikir sebagai kehidupan bagi hati",
+              "Keutamaan berpuasa di bulan Ramadhan",
+              "Tata cara zakat fitrah",
+              "Anjuran menuntut ilmu di Madinah"
+            ],
+            answer: 0,
+            exp: "Hadits 4 mengibaratkan dzikir seperti kehidupan ruhani bagi hati manusia."
+          },
+          {
+            q: "Manakah di antara pasangan berikut yang BENAR antara Perawi dan Julukan/Peranannya?",
+            arabic: "",
+            options: [
+              "Anas bin Malik - Pelayan Rasulullah ﷺ selama 10 tahun",
+              "Abu Musa al-Asy'ari - Amil Zakat di Thaif",
+              "Sufyan bin Abdillah - Sahabat yang mengurus 9 saudara di Uhud",
+              "Jabir bin Abdillah - Dikaruniai seruling keluarga Daud"
+            ],
+            answer: 0,
+            exp: "Anas bin Malik adalah pelayan (khadim) Nabi ﷺ selama 10 tahun."
+          },
+          {
+            q: "Hadits yang menegaskan bahwa orang yang tidak berdzikir seperti orang mati diriwayatkan oleh...",
+            arabic: "",
+            options: ["Abu Musa al-Asy'ari", "Anas bin Malik", "Sufyan bin Abdillah", "Jabir bin Abdillah"],
+            answer: 0,
+            exp: "Diriwayatkan oleh Abu Musa al-Asy'ari radhiyallahu 'anhu."
+          },
+          {
+            q: "Ketetapan bahwa 'Antara seseorang dengan kesyirikan adalah meninggalkan shalat' diriwayatkan oleh...",
+            arabic: "",
+            options: ["Jabir bin Abdillah", "Anas bin Malik", "Sufyan bin Abdillah", "Abu Musa al-Asy'ari"],
+            answer: 0,
+            exp: "Diriwayatkan oleh Jabir bin Abdillah radhiyallahu 'anhu."
+          },
+          {
+            q: "Lafadz ((قُلْ آمَنْتُ بِاللهِ ثُمَّ اسْتَقِمْ)) diriwayatkan oleh...",
+            arabic: "",
+            options: ["Sufyan bin Abdillah", "Anas bin Malik", "Jabir bin Abdillah", "Abu Musa al-Asy'ari"],
+            answer: 0,
+            exp: "Diriwayatkan oleh Sufyan bin Abdillah ats-Tsaqafi radhiyallahu 'anhu."
+          },
+          {
+            q: "Lafadz ((ثَلَاثٌ مَنْ كُنَّ فِيهِ وَجَدَ حَلَاوَةَ الإِيمَانِ)) diriwayatkan oleh...",
+            arabic: "",
+            options: ["Anas bin Malik", "Sufyan bin Abdillah", "Jabir bin Abdillah", "Abu Musa al-Asy'ari"],
+            answer: 0,
+            exp: "Diriwayatkan oleh Anas bin Malik al-Anshari radhiyallahu 'anhu."
+          },
+          {
+            q: "Kasus: Faisal selalu shalat subuh berjamaah di masjid, berkata jujur, dan berbakti pada orang tua. Berdasarkan materi Hadits 1, Faisal menunjukkan tanda...",
+            arabic: "",
+            options: ["Istiqamah", "Riya'", "Ujub", "Sombong"],
+            answer: 0,
+            exp: "Semua indikator tersebut merupakan tanda-tanda utama orang yang istiqamah."
+          },
+          {
+            q: "Kasus: Farhan lebih memilih menonton konser musik saat azan dhuhur berkumandang dan sengaja meninggalkan shalat. Berdasarkan Hadits 3, perbuatan Farhan...",
+            arabic: "",
+            options: [
+              "Sangat berbahaya dan mendekatkan pada kekafiran",
+              "Boleh dilakukan jika menghibur diri",
+              "Hanya dosa kecil yang langsung terhapus",
+              "Mendapatkan pahala kesenangan"
+            ],
+            answer: 0,
+            exp: "Sengaja meninggalkan shalat demi urusan duniawi adalah bahaya besar pembeda keimanan."
+          },
+          {
+            q: "Membenci kekafiran sebagaimana benci dilempar ke api neraka merupakan perkara ke-...",
+            arabic: "",
+            options: ["3 dalam Manisnya Iman", "1 dalam Manisnya Iman", "2 dalam Manisnya Iman", "4 dalam Manisnya Iman"],
+            answer: 0,
+            exp: "Merupakan perkara ke-3 dari pendorong manisnya iman dalam Hadits 2."
+          },
+          {
+            q: "Sahabat yang ikut Bai'at al-Aqabah sewaktu kecil dan tidak ikut Perang Badar karena mengurus saudaranya adalah...",
+            arabic: "",
+            options: ["Jabir bin Abdillah", "Anas bin Malik", "Sufyan bin Abdillah", "Abu Musa al-Asy'ari"],
+            answer: 0,
+            exp: "Jabir bin Abdillah al-Anshari."
+          },
+          {
+            q: "Mengapa kita harus mempelajari biografi perawi hadits?",
+            arabic: "",
+            options: [
+              "Agar mengenal keteladanan, kesungguhan, dan perjuangan para sahabat Nabi",
+              "Sekadar menghafal tanggal lahir",
+              "Agar bisa pamer ilmu",
+              "Tidak ada manfaatnya"
+            ],
+            answer: 0,
+            exp: "Mengenal biografi sahabat menumbuhkan rasa cinta dan meneladani kemuliaan akhlak mereka."
+          },
+          {
+            q: "Target utama dari mempelajari materi Akhlak & Hadits di Ma'had Khidmatussunnah adalah...",
+            arabic: "",
+            options: [
+              "Memahami kandungan hadits dan mengamalkan nilai akhlaknya dalam kehidupan",
+              "Mendapatkan nilai tanpa perlu belajar",
+              "Mencari pujian ustadz",
+              "Hanya lulus ujian STS lalu lupa"
+            ],
+            answer: 0,
+            exp: "Target utama adalah memahami isi hadits dan mengamalkan nilai-nilai akhlak mulia dalam kehidupan sehari-hari."
+          }
+        ]
+      }
+    ];
+
+    // Game State Engine Variables
+    let gameState = {
+      playerName: "Siswa Akhlak",
+      avatar: "👳‍♂️",
+      currentLevelIdx: 0,
+      currentQuestionIdx: 0,
+      score: 0,
+      comboStreak: 0,
+      timer: 30,
+      timerInterval: null,
+      levelStats: {
+        1: { score: 0, correct: 0, total: 20, completed: false },
+        2: { score: 0, correct: 0, total: 20, completed: false },
+        3: { score: 0, correct: 0, total: 20, completed: false },
+        4: { score: 0, correct: 0, total: 20, completed: false },
+        5: { score: 0, correct: 0, total: 20, completed: false }
+      }
+    };
+
+    // Load LocalStorage
+    function loadSavedData() {
+      const saved = localStorage.getItem('khidmatsunnah_quiz_data');
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          gameState.playerName = parsed.playerName || "Siswa Akhlak";
+          gameState.avatar = parsed.avatar || "👳‍♂️";
+          if (parsed.levelStats) {
+            gameState.levelStats = parsed.levelStats;
+          }
+        } catch(e) {
+          console.error("Error parsing saved data", e);
+        }
+      }
+      updateProfileUI();
+    }
+
+    function saveData() {
+      localStorage.setItem('khidmatsunnah_quiz_data', JSON.stringify({
+        playerName: gameState.playerName,
+        avatar: gameState.avatar,
+        levelStats: gameState.levelStats
+      }));
+    }
+
+    // UI View Switching
+    function showView(viewId) {
+      sound.playClick();
+      ['homeView', 'quizView', 'levelResultView', 'raporView'].forEach(id => {
+        document.getElementById(id).classList.add('hidden');
+      });
+      document.getElementById(viewId).classList.remove('hidden');
+
+      if (viewId === 'homeView') renderLevelGrid();
+      if (viewId === 'raporView') renderRaporView();
+    }
+
+    // Profile Handling
+    function initAvatarSelector() {
+      const container = document.getElementById('avatarSelector');
+      container.innerHTML = '';
+      avatars.forEach(av => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = `p-2.5 text-2xl rounded-xl transition border border-slate-700 flex-shrink-0 ${
+          av === gameState.avatar ? 'bg-teal-500/30 border-teal-400 scale-110' : 'bg-slate-800 hover:bg-slate-700'
+        }`;
+        btn.innerHTML = av;
+        btn.onclick = () => {
+          sound.playClick();
+          gameState.avatar = av;
+          initAvatarSelector();
+        };
+        container.appendChild(btn);
+      });
+      document.getElementById('playerNameInput').value = gameState.playerName;
+    }
+
+    function saveProfile() {
+      const input = document.getElementById('playerNameInput').value.trim();
+      if (input) {
+        gameState.playerName = input;
+        saveData();
+        updateProfileUI();
+        showToast('✅ Profil berhasil disimpan!', 'success');
+        sound.playClick();
+      }
+    }
+
+    function updateProfileUI() {
+      document.getElementById('chipAvatar').innerText = gameState.avatar;
+      document.getElementById('chipName').innerText = gameState.playerName;
+    }
+
+    // Level Grid Render
+    function renderLevelGrid() {
+      const grid = document.getElementById('levelGrid');
+      grid.innerHTML = '';
+
+      quizLevels.forEach((lvl, idx) => {
+        const lvlId = lvl.id;
+        const stat = gameState.levelStats[lvlId] || { score: 0, correct: 0, total: 20, completed: false };
+        const isUnlocked = idx === 0 || (gameState.levelStats[idx] && gameState.levelStats[idx].completed);
+
+        const card = document.createElement('div');
+        card.className = `glass-card rounded-2xl p-5 border transition-all duration-300 relative overflow-hidden ${
+          isUnlocked 
+            ? 'border-teal-500/40 hover:border-teal-400 hover:-translate-y-1 shadow-lg shadow-teal-500/10 cursor-pointer' 
+            : 'border-slate-800 opacity-60 cursor-not-allowed'
+        }`;
+
+        card.innerHTML = `
+          <div class="flex justify-between items-start mb-3">
+            <span class="px-2.5 py-1 rounded-lg bg-teal-500/20 text-teal-300 text-xs font-bold border border-teal-500/30">
+              Level ${lvlId}
+            </span>
+            ${stat.completed ? '<span class="text-xs bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full font-semibold border border-emerald-500/30"><i class="fa-solid fa-check mr-1"></i>Lulus</span>' : ''}
+          </div>
+
+          <h4 class="font-bold text-base text-white mb-1">${lvl.title}</h4>
+          <p class="text-xs text-slate-400 mb-4">${lvl.subtitle}</p>
+
+          <div class="flex justify-between items-center text-xs pt-3 border-t border-slate-800 text-slate-300">
+            <span>Skor: <strong class="text-amber-400">${stat.score}</strong></span>
+            <span>Akurasi: <strong class="text-teal-300">${stat.correct}/${stat.total}</strong></span>
+          </div>
+        `;
+
+        if (isUnlocked) {
+          card.onclick = () => startQuizLevel(idx);
+        }
+
+        grid.appendChild(card);
+      });
+    }
+
+    // Quiz Control Loop
+    function startQuizLevel(levelIdx) {
+      sound.playClick();
+      gameState.currentLevelIdx = levelIdx;
+      gameState.currentQuestionIdx = 0;
+      gameState.score = 0;
+      gameState.comboStreak = 0;
+
+      showView('quizView');
+      loadQuestion();
+    }
+
+    function loadQuestion() {
+      clearInterval(gameState.timerInterval);
+      const level = quizLevels[gameState.currentLevelIdx];
+      const qData = level.questions[gameState.currentQuestionIdx];
+
+      // UI Text
+      document.getElementById('quizLevelBadge').innerText = `Level ${level.id}`;
+      document.getElementById('quizLevelTitle').innerText = level.title;
+      document.getElementById('questionNumber').innerText = gameState.currentQuestionIdx + 1;
+      document.getElementById('totalQuestionsInLevel').innerText = level.questions.length;
+      document.getElementById('currentScore').innerText = gameState.score;
+      document.getElementById('comboCount').innerText = gameState.comboStreak;
+
+      // Progress bar
+      const progressPct = ((gameState.currentQuestionIdx + 1) / level.questions.length) * 100;
+      document.getElementById('progressBar').style.width = `${progressPct}%`;
+
+      // Arabic Box
+      const arabicBox = document.getElementById('arabicBox');
+      if (qData.arabic) {
+        arabicBox.classList.remove('hidden');
+        document.getElementById('arabicText').innerText = qData.arabic;
+      } else {
+        arabicBox.classList.add('hidden');
+      }
+
+      // Question Text
+      document.getElementById('questionText').innerText = qData.q;
+
+      // Reset Card Animations
+      const qCard = document.getElementById('questionCard');
+      qCard.classList.remove('animate-correct', 'animate-shake');
+
+      // Explanation Box
+      document.getElementById('explanationBox').classList.add('hidden');
+
+      // Next Button state
+      const nextBtn = document.getElementById('nextBtn');
+      nextBtn.disabled = true;
+      nextBtn.className = "px-6 py-3 bg-slate-700 text-slate-400 cursor-not-allowed font-bold rounded-xl text-sm transition flex items-center space-x-2";
+
+      // Options Render
+      const container = document.getElementById('optionsContainer');
+      container.innerHTML = '';
+
+      qData.options.forEach((optText, idx) => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = "opt-btn w-full p-4 rounded-xl text-left text-xs md:text-sm font-semibold bg-slate-800/90 border border-slate-700 text-slate-200 hover:bg-slate-700 hover:border-teal-400 transition-all duration-200 flex items-center space-x-3";
+        btn.innerHTML = `
+          <span class="w-7 h-7 rounded-lg bg-slate-900 border border-slate-700 flex items-center justify-center font-bold text-xs text-teal-400 shrink-0">
+            ${String.fromCharCode(65 + idx)}
+          </span>
+          <span class="leading-snug">${optText}</span>
+        `;
+        btn.onclick = () => checkAnswer(idx);
+        container.appendChild(btn);
+      });
+
+      // Start 30s Timer
+      startTimer();
+    }
+
+    function startTimer() {
+      gameState.timer = 30;
+      document.getElementById('timerDisplay').innerText = `${gameState.timer}s`;
+
+      gameState.timerInterval = setInterval(() => {
+        gameState.timer--;
+        document.getElementById('timerDisplay').innerText = `${gameState.timer}s`;
+
+        if (gameState.timer <= 0) {
+          clearInterval(gameState.timerInterval);
+          checkAnswer(-1); // Timeout as incorrect
+        }
+      }, 1000);
+    }
+
+    function checkAnswer(selectedIndex) {
+      clearInterval(gameState.timerInterval);
+      const level = quizLevels[gameState.currentLevelIdx];
+      const qData = level.questions[gameState.currentQuestionIdx];
+      const isCorrect = selectedIndex === qData.answer;
+      const qCard = document.getElementById('questionCard');
+      const optButtons = document.querySelectorAll('.opt-btn');
+
+      // Disable all option buttons
+      optButtons.forEach(btn => btn.disabled = true);
+
+      if (isCorrect) {
+        sound.playCorrect();
+        qCard.classList.add('animate-correct');
+        gameState.comboStreak++;
+        const streakBonus = Math.min(gameState.comboStreak * 2, 20);
+        const pointsEarned = 10 + streakBonus;
+        gameState.score += pointsEarned;
+
+        // Highlight correct button
+        if (optButtons[selectedIndex]) {
+          optButtons[selectedIndex].className = "opt-btn w-full p-4 rounded-xl text-left text-xs md:text-sm font-semibold bg-emerald-600/30 border-2 border-emerald-400 text-emerald-200 transition-all duration-200 flex items-center space-x-3";
+        }
+
+        if (gameState.comboStreak >= 3) {
+          triggerConfetti();
+          showToast(`🔥 Combo ${gameState.comboStreak}x Streak! (+${streakBonus} Bonus)`, 'success');
+        }
+
+      } else {
+        sound.playWrong();
+        qCard.classList.add('animate-shake');
+        gameState.comboStreak = 0;
+
+        // Highlight wrong chosen
+        if (selectedIndex >= 0 && optButtons[selectedIndex]) {
+          optButtons[selectedIndex].className = "opt-btn w-full p-4 rounded-xl text-left text-xs md:text-sm font-semibold bg-rose-600/30 border-2 border-rose-400 text-rose-200 transition-all duration-200 flex items-center space-x-3";
+        }
+
+        // Show correct option in green
+        if (optButtons[qData.answer]) {
+          optButtons[qData.answer].className = "opt-btn w-full p-4 rounded-xl text-left text-xs md:text-sm font-semibold bg-emerald-600/30 border-2 border-emerald-400 text-emerald-200 transition-all duration-200 flex items-center space-x-3";
+        }
+      }
+
+      // Update Score & Streak UI
+      document.getElementById('currentScore').innerText = gameState.score;
+      document.getElementById('comboCount').innerText = gameState.comboStreak;
+
+      // Show Explanation Card
+      document.getElementById('explanationText').innerText = qData.exp;
+      document.getElementById('explanationBox').classList.remove('hidden');
+
+      // Enable Next Button
+      const nextBtn = document.getElementById('nextBtn');
+      nextBtn.disabled = false;
+      nextBtn.className = "px-6 py-3 bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold rounded-xl text-sm transition flex items-center space-x-2 shadow-lg shadow-teal-500/20";
+    }
+
+    function nextQuestion() {
+      sound.playClick();
+      const level = quizLevels[gameState.currentLevelIdx];
+      gameState.currentQuestionIdx++;
+
+      if (gameState.currentQuestionIdx < level.questions.length) {
+        loadQuestion();
+      } else {
+        finishQuizLevel();
+      }
+    }
+
+    function finishQuizLevel() {
+      const level = quizLevels[gameState.currentLevelIdx];
+      const lvlId = level.id;
+      const totalQ = level.questions.length;
+      
+      // Calculate correct count approximation based on score logic
+      // Note: Perfect score approx = 200+
+      const accuracyPercent = Math.min(100, Math.round((gameState.score / (totalQ * 15)) * 100));
+      const correctEstimate = Math.min(totalQ, Math.round((accuracyPercent / 100) * totalQ));
+
+      // Save Level Stats
+      gameState.levelStats[lvlId] = {
+        score: gameState.score,
+        correct: correctEstimate,
+        total: totalQ,
+        completed: accuracyPercent >= 60 // 60% passing mark
+      };
+
+      saveData();
+      sound.playFanfare();
+      triggerConfetti();
+
+      // Render Result Screen
+      document.getElementById('resultLevelTitle').innerText = level.title;
+      document.getElementById('resScore').innerText = gameState.score;
+      document.getElementById('resAccuracy').innerText = `${correctEstimate}/${totalQ}`;
+      document.getElementById('resPercent').innerText = `${accuracyPercent}%`;
+
+      showView('levelResultView');
+    }
+
+    function retryCurrentLevel() {
+      startQuizLevel(gameState.currentLevelIdx);
+    }
+
+    function confirmExitQuiz() {
+      if (confirm("Apakah kamu yakin ingin keluar dari kuis? Kemajuan level ini tidak akan disimpan.")) {
+        showView('homeView');
+      }
+    }
+
+    // Render Digital Rapor
+    function renderRaporView() {
+      document.getElementById('raporAvatar').innerText = gameState.avatar;
+      document.getElementById('raporName').innerText = gameState.playerName;
+
+      let grandTotalScore = 0;
+      let totalQuestions = 0;
+      let totalCorrect = 0;
+
+      const tbody = document.getElementById('raporTableBody');
+      tbody.innerHTML = '';
+
+      quizLevels.forEach((lvl) => {
+        const stat = gameState.levelStats[lvl.id] || { score: 0, correct: 0, total: 20, completed: false };
+        grandTotalScore += stat.score;
+        totalQuestions += stat.total;
+        totalCorrect += stat.correct;
+
+        const accPct = Math.round((stat.correct / stat.total) * 100);
+
+        const tr = document.createElement('tr');
+        tr.className = "hover:bg-slate-800/50 transition";
+        tr.innerHTML = `
+          <td class="p-3 font-semibold text-white">${lvl.title}</td>
+          <td class="p-3 text-slate-400">${lvl.subtitle.replace('Perawi: ', '')}</td>
+          <td class="p-3 text-center font-bold text-amber-400">${stat.score}</td>
+          <td class="p-3 text-center text-teal-300 font-semibold">${accPct}%</td>
+          <td class="p-3 text-center">
+            ${stat.completed 
+              ? '<span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-xs font-bold">LULUS</span>' 
+              : '<span class="px-2 py-0.5 rounded bg-slate-800 text-slate-400 border border-slate-700 text-xs">Belum</span>'
+            }
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      document.getElementById('raporTotalScore').innerText = `${grandTotalScore} Poin`;
+
+      // Overall Grade
+      const overallAcc = totalQuestions > 0 ? (totalCorrect / totalQuestions) * 100 : 0;
+      let grade = 'C';
+      let title = '(Cukup / Makbool)';
+
+      if (overallAcc >= 88) {
+        grade = 'A+';
+        title = '(Mumtaz / Sangat Istimewa)';
+      } else if (overallAcc >= 75) {
+        grade = 'A';
+        title = '(Jayyid Jiddan / Sangat Baik)';
+      } else if (overallAcc >= 60) {
+        grade = 'B';
+        title = '(Jayyid / Baik)';
+      }
+
+      document.getElementById('raporGrade').innerText = grade;
+      document.getElementById('raporGradeTitle').innerText = title;
+
+      // Render Badges
+      renderBadges(grandTotalScore, overallAcc);
+    }
+
+    function renderBadges(totalScore, overallAcc) {
+      const badgesContainer = document.getElementById('badgesGrid');
+      badgesContainer.innerHTML = '';
+
+      const badgeList = [
+        { icon: '🛡️', title: 'Istiqamah Guard', desc: 'Selesaikan Level 1', unlocked: gameState.levelStats[1]?.completed },
+        { icon: '💖', title: 'Manisnya Iman', desc: 'Selesaikan Level 2', unlocked: gameState.levelStats[2]?.completed },
+        { icon: '🕌', title: 'Penjaga Shalat', desc: 'Selesaikan Level 3', unlocked: gameState.levelStats[3]?.completed },
+        { icon: '📿', title: 'Ahli Dzikir', desc: 'Selesaikan Level 4', unlocked: gameState.levelStats[4]?.completed },
+        { icon: '🎓', title: 'Master Akhlak', desc: 'Selesaikan Level 5', unlocked: gameState.levelStats[5]?.completed },
+        { icon: '🏆', title: 'Bintang Mumtaz', desc: 'Akurasi Total > 85%', unlocked: overallAcc >= 85 }
+      ];
+
+      badgeList.forEach(b => {
+        const div = document.createElement('div');
+        div.className = `p-3 rounded-2xl border text-center transition ${
+          b.unlocked 
+            ? 'bg-slate-800/90 border-amber-500/40 text-white shadow-lg' 
+            : 'bg-slate-950/40 border-slate-800 text-slate-500 opacity-50'
+        }`;
+        div.innerHTML = `
+          <div class="text-3xl mb-1">${b.icon}</div>
+          <div class="font-bold text-xs truncate text-amber-300">${b.title}</div>
+          <div class="text-[10px] text-slate-400 leading-tight">${b.desc}</div>
+        `;
+        badgesContainer.appendChild(div);
+      });
+    }
+
+    function confirmResetProgress() {
+      if (confirm("Apakah kamu yakin ingin mengosongkan seluruh nilai Rapor dan Prestasi? Data yang dihapus tidak bisa dikembalikan.")) {
+        localStorage.removeItem('khidmatsunnah_quiz_data');
+        gameState.levelStats = {
+          1: { score: 0, correct: 0, total: 20, completed: false },
+          2: { score: 0, correct: 0, total: 20, completed: false },
+          3: { score: 0, correct: 0, total: 20, completed: false },
+          4: { score: 0, correct: 0, total: 20, completed: false },
+          5: { score: 0, correct: 0, total: 20, completed: false }
+        };
+        renderRaporView();
+        showToast('🗑️ Data Rapor telah dibersihkan', 'info');
+      }
+    }
+
+    // Toast Engine
+    function showToast(msg, type = 'info') {
+      const toast = document.getElementById('toast');
+      const toastMsg = document.getElementById('toastMsg');
+      toastMsg.innerText = msg;
+      
+      toast.classList.remove('translate-y-20', 'opacity-0');
+      toast.classList.add('translate-y-0', 'opacity-100');
+
+      setTimeout(() => {
+        toast.classList.remove('translate-y-0', 'opacity-100');
+        toast.classList.add('translate-y-20', 'opacity-0');
+      }, 3000);
+    }
+
+    // Onload Initialization
+    window.onload = function() {
+      loadSavedData();
+      initAvatarSelector();
+      renderLevelGrid();
+    };
+  </script>
+</body>
+</html>
